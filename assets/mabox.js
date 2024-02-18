@@ -103,13 +103,17 @@ async function openLink(url) {
 
     try {
         //if link start with ./ or /
-        if(url.startsWith('./') || url.startsWith('/')) {
+        if((url.startsWith('./') || url.startsWith('/')) && !url.startsWith('//')) {
             url = `http://${host}${url.replace("./","/")}`;
         }
 
         //if link doesnt have http
         if(!url.startsWith('http')) {
-            url = `http://${url}`;
+            if(url.startsWith('//')){
+                url = `http:${url}`;
+            } else {
+                url = `http://${url}`;
+            }
         }
         const response = await fetch(`/open-link?url=${url}`);
         const data = await response.json();
