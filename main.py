@@ -22,7 +22,7 @@ def convertWebsiteToText(url):
         links = []
         # get text from website, but keep newline
         for a in soup.find_all('a'):
-            if a.get_text().strip() != "":
+            if a.get("href") != None and a.get_text().strip() != "" and a.get("href").strip() != "":
                 links.append({
                     "href": a.get("href"),
                     "text": a.get_text()
