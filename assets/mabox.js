@@ -26,7 +26,7 @@ async function processCommand(input) {
             <span style="color: white;">Available commands:</span>
             <ul>
                 <li>help - show available commands</li>
-                <li>convert - convert website to cli, example conver https://id.wikipedia.org</li>
+                <li>convert - convert website to cli, example convert https://id.wikipedia.org</li>
                 <li>open - Open the links available on the website, the links are opened in the sequence numbers 1,2,3 and so on</li>
             </ul>
         `);
@@ -116,6 +116,7 @@ async function openLink(url) {
                 const elLinks = document.getElementById('links');
                 elLinks.innerHTML = JSON.stringify(data.links);
                 host = data.host;
+                document.querySelector('#prompt span').innerHTML = host;
 
                 data.links.forEach((link, index) => {
                     linkList += `<li>${link['text']}</li>`;
