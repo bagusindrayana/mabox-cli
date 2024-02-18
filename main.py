@@ -13,7 +13,7 @@ CORS(app)
 
 def convertWebsiteToText(url):
     # if url does not start with http
-    if not url.startswith("http://"):
+    if not url.startswith("http"):
         url = "http://" + url
 
     # request to url and convert to text
