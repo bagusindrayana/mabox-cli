@@ -1,0 +1,51 @@
+body {
+    font-family: monospace;
+    background-color: black;
+    color: white;
+    margin: 0;
+    padding: 0;
+    overflow-y: scroll;
+    scrollbar-width: none;
+}
+
+#wrapper {
+    padding: 10px;
+    height: calc(100% - 40px);
+    /* Adjusted for input line */
+    
+}
+
+#terminal {
+    width: 100%;
+}
+
+#input-line {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+#prompt {
+    color: green;
+    margin-right: 5px;
+}
+
+#input {
+    flex: 1;
+    background-color: transparent;
+    border: none;
+    color: white;
+    caret-color: white;
+    outline: none;
+}
+
+
+.textbox {
+    border: 1px dashed white;
+    padding: 10px;
+    margin: 5px;
+    display: block;
+    width: calc(100% - 30px);
+    text-align: center;
+}
