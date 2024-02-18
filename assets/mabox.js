@@ -101,6 +101,11 @@ async function openLink(url) {
         url = `http://${host}${url.replace("./","/")}`;
     }
 
+    //if link doesnt have http
+    if(!url.startsWith('http')) {
+        url = `http://${url}`;
+    }
+
     try {
         const response = await fetch(`/open-link?url=${url}`);
         const data = await response.json();
