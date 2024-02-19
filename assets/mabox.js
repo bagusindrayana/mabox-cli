@@ -36,10 +36,11 @@ async function processCommand(input) {
             </ul>
         `);
     } else if(command.startsWith("convert")) {
-        const url = command.split(' ')[1];
+        let url = command.split(' ')[1];
         if(!url) {
             createTerminalOutput(`<span style="color: red;">Invalid url: ${url}</span>`);
         } else {
+            url = cleanUrl(url);
             await openLink(url).then((v) => {
                 if(v){
                     history.push(url);
@@ -57,7 +58,8 @@ async function processCommand(input) {
             if (isNaN(index) || index < 1 || index > links.length) {
                 createTerminalOutput(`<span style="color: red;">Invalid link index: ${index}</span>`);
             } else {
-                const url = links[index - 1]['href'];
+                let url = links[index - 1]['href'];
+                url = cleanUrl(url);
                 await openLink(url).then((v) => {
                     if(v){
                         history.push(url);
@@ -132,6 +134,8 @@ function getArgs(command) {
     return args;
 }
 
+
+
 const inputField = document.getElementById('input');
 inputField.focus();
 inputField.addEventListener('keydown', handleInput);
@@ -146,6 +150,23 @@ function getCurrentLinks(){
     }
 }
 
+function cleanUrl(url){
+    //if link start with ./ or /
+    if((url.startsWith('./') || url.startsWith('/')) && !url.startsWith('//')) {
+        url = `http://${host}${url.replace("./","/")}`;
+    }
+
+    //if link doesnt have http
+    if(!url.startsWith('http')) {
+        if(url.startsWith('//')){
+            url = `http:${url}`;
+        } else {
+            url = `http://${url}`;
+        }
+    }
+    return url;
+}
+
 async function openLink(url) {
     if(url.trim() === "") {
         createTerminalOutput(`<span style="color: red;">Invalid url: ${url}</span>`);
@@ -153,19 +174,7 @@ async function openLink(url) {
     }
 
     try {
-        //if link start with ./ or /
-        if((url.startsWith('./') || url.startsWith('/')) && !url.startsWith('//')) {
-            url = `http://${host}${url.replace("./","/")}`;
-        }
-
-        //if link doesnt have http
-        if(!url.startsWith('http')) {
-            if(url.startsWith('//')){
-                url = `http:${url}`;
-            } else {
-                url = `http://${url}`;
-            }
-        }
+        url = cleanUrl(url);
         const response = await fetch(`/open-link?url=${url}`);
         const data = await response.json();
         if(response.status === 200) {
