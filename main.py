@@ -57,7 +57,7 @@ def convertWebsiteToText(url):
             "host": host,
             "title" : title,
             "titleArt" : titleArt,
-            "text": text.strip().replace("\n\n\n", ""),
+            "text": text.strip().replace("\n\n\n", "").replace("\n \n \n", ""),
             "links": links
         }
     except Exception as e:
