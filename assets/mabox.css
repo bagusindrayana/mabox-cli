@@ -47,5 +47,33 @@ body {
     margin: 5px;
     display: block;
     width: calc(100% - 30px);
-    text-align: center;
+    
+}
+
+.row {
+    display: flex;
+    flex-wrap: wrap;
+    border-top: 1px dashed white;
+    border-bottom: 1px dashed white;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+.column {
+    
+    padding: 5px 0px;
+}
+
+/* responsive column layout, 4 column in desktop and 2 column in mobile */
+@media (min-width: 768px) {
+    .column {
+        width: 25%;
+        
+    }
+}
+
+@media (max-width: 767px) {
+    .column {
+        width: 50%;
+    }
 }

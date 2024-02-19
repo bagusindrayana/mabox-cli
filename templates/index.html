@@ -28,11 +28,12 @@
                 </div>
                 {% if data['links']|length > 0 %}
                     <p>Link : </p>
-                    <ol>
+                    <span>Use command open [link number] </span>
+                    <div class="row">
                         {% for link in data['links'] %}
-                            <li>{{ link['text'] }}</li>
+                            <div class="column">{{loop.index0+1}} - {{ link['text'] }}</div>
                         {% endfor %}
-                    </ol>
+                    </div>
                 {% endif %}
             {% elif error != None %}
                 <span style="color: red;">{{ error }}</span>
