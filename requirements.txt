@@ -6,3 +6,4 @@ requests
 Werkzeug==2.2.2
 beautifulsoup4
 art
+markdownify

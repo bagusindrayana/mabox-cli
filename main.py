@@ -5,6 +5,7 @@ from flask import Flask, request, jsonify,render_template
 from flask_cors import CORS
 from bs4 import BeautifulSoup
 from art import *
+import markdownify
 
 
 app = Flask(__name__, template_folder='templates', static_folder='assets')
@@ -32,8 +33,16 @@ def convertWebsiteToText(url):
                     "text": a.get_text()
                 })
             a.replace_with(" ")
-            
-        text = soup.get_text("\n", strip=True)
+        
+        # remove a and nav tag
+        for a in soup.find_all('nav'):
+            a.replace_with("")
+        for a in soup.find_all('header'):
+            a.replace_with("")
+        for a in soup.find_all('a'):
+            a.replace_with("")
+
+        text = soup.get_text()
         # # replace newline with <br> tag
         # text = text.replace("\n", "<br>")
         titleArt=text2art(title)
@@ -43,11 +52,12 @@ def convertWebsiteToText(url):
             host = m.group(1).replace("www.", "")
         else:
             host = url
+        text = markdownify.markdownify(text, heading_style="ATX")
         return {
             "host": host,
             "title" : title,
             "titleArt" : titleArt,
-            "text": text,
+            "text": text.strip().replace("\n\n\n", ""),
             "links": links
         }
     except Exception as e:
@@ -77,7 +87,6 @@ def index():
                 "text": res['text'],
                 "links": res['links']
             }
-            print(data)
     return render_template('index.html',data=data,error=error)
 
 @app.route('/open-link')
