@@ -32,15 +32,34 @@ def convertWebsiteToText(url):
                     "href": a.get("href"),
                     "text": a.get_text()
                 })
-            a.replace_with(" ")
+            # a.replace_with("")
+        
+        forms = []
+        for form in soup.find_all('form'):
+            inputs = []
+            for input in form.find_all('input'):
+                inputs.append({
+                    "type": input.get("type"),
+                    "name": input.get("name"),
+                    "value": input.get("value"),
+                    "required": input.get("required") == "required"
+                })
+            forms.append({
+                "action": form.get("action"),
+                "method": form.get("method"),
+                "inputs": inputs
+            })
+            form.replace_with(" ")
         
         # remove a and nav tag
         for a in soup.find_all('nav'):
             a.replace_with("")
         for a in soup.find_all('header'):
             a.replace_with("")
-        for a in soup.find_all('a'):
+        for a in soup.find_all('footer'):
             a.replace_with("")
+        # for a in soup.find_all('a'):
+        #     a.replace_with("")
 
         text = soup.get_text()
         # # replace newline with <br> tag
@@ -58,7 +77,8 @@ def convertWebsiteToText(url):
             "title" : title,
             "titleArt" : titleArt,
             "text": text.strip().replace("\n\n\n", "").replace("\n \n \n", ""),
-            "links": links
+            "links": links,
+            "forms": forms
         }
     except Exception as e:
         return {
@@ -92,7 +112,12 @@ def index():
 @app.route('/open-link')
 def openLink():
     url = request.args.get("url")
-    return jsonify(convertWebsiteToText(url))
+    res = convertWebsiteToText(url)
+    if "error" in res:
+        return jsonify({
+            "error": res["error"]
+        }), 500
+    return jsonify(res)
 
 
 
