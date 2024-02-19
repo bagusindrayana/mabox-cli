@@ -77,3 +77,19 @@ body {
         width: 50%;
     }
 }
+
+/* table with border dashed */
+
+.table {
+    margin-top: 5px;
+    margin-bottom: 5px;
+    border-collapse: collapse;
+    width: 100%;
+    border: 1px dashed white;
+}
+
+.table th, .table td {
+    border: 1px dashed white;
+    padding: 10px;
+    text-align: left;
+}

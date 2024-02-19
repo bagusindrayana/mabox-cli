@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mabox CLI</title>
 
-    <link rel="stylesheet" href="./assets/mabox.css?v=1">
+    <link rel="stylesheet" href="./assets/mabox.css?v=3">
     
 </head>
 
@@ -14,6 +14,7 @@
     <div id="host" style="display: none;">{{data['host'] or 'host.com'}}</div>
     {% if data != None %}
         <div id="links" style="display: none;">{{data['links']|tojson }}</div>
+        <div id="forms" style="display: none;">{{data['forms']|tojson }}</div>
     {% else %}
         <div id="links" style="display: none;"></div>
     {% endif %}
@@ -45,7 +46,7 @@
             <span id="prompt">mabox_cli@<span>{{data['host'] or 'host.com'}}</span>:</span> <input id="input" type="text" autocomplete="off"   autofocus>
         </div>
     </div>
-    <script src="./assets/mabox.js?v=2"></script>
+    <script src="./assets/mabox.js?v=4"></script>
 </body>
 
 </html>

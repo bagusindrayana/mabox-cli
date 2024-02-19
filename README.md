@@ -9,12 +9,14 @@ convert web menjadi teks cli
 | Command | Deskripsi |
 | --- | --- |
 | help | show available commands |
-| convert | convert website to cli, example convert https://id.wikipedia.org | 
-| open | Open the links available on the website, list links ordered by sequence numbers 1,2,3 and so on |
+| convert | convert website to cli, example convert https://id.wikipedia.org, use --hide-links to hide available links in website | 
+| open | Open the links available on the website,open [link number], list links ordered by sequence numbers 1,2,3 and so on |
 | clear | clear terminal |
 | next | open the next history |
 | prev | open the previous history |
-
+| links | show available links in current website |
+| forms | show available forms in current website |
+| submit | submit form, submit [form number] --input=input1=value1&input2=value2 |
 
 ### Kekurangan
 - hanya support navigasi dengan GET request

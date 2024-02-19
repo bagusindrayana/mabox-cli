@@ -4,6 +4,9 @@ const inputLineDiv = document.getElementById('input-line');
 
 let history = [];
 let currentIndexHistory = 0;
+let settings = {
+    "hideLinks": false
+}
 
 //check query sc
 const urlParams = new URLSearchParams(window.location.search);
@@ -28,11 +31,14 @@ async function processCommand(input) {
             <span style="color: white;">Available commands:</span>
             <ul>
                 <li>help - show available commands</li>
-                <li>convert - convert website to cli, example convert https://id.wikipedia.org</li>
-                <li>open - Open the links available on the website, list links ordered by sequence numbers 1,2,3 and so on</li>
+                <li>convert - convert website to cli, example convert https://id.wikipedia.org, use --hide-links to hide available links in website</li>
+                <li>open - Open the links available on the website,open [link number], list links ordered by sequence numbers 1,2,3 and so on</li>
                 <li>clear - clear terminal</li>
                 <li>next - open the next history</li>
                 <li>prev - open the previous history</li>
+                <li>links - show available links in current website</li>
+                <li>forms - show available forms in current website</li>
+                <li>submit - submit form, submit [form number] --input=input1=value1&input2=value2</li>
             </ul>
         `);
     } else if(command.startsWith("convert")) {
@@ -50,6 +56,10 @@ async function processCommand(input) {
         }
     } else if(command.startsWith("open")) {
         const links = getCurrentLinks();
+        const args = getArgs(command);
+        if(args.includes("--hide-links")){
+            settings.hideLinks = true;
+        }
         if (links.length === 0) {
             createTerminalOutput(`<span style="color: red;">No links available</span>`);
         } else {
@@ -67,6 +77,7 @@ async function processCommand(input) {
                     }
                 });
             }
+            settings.hideLinks = false;
         }
     } else if(command.startsWith("clear")) {
         terminalDiv.innerHTML = "";
@@ -75,6 +86,16 @@ async function processCommand(input) {
     }
     else if(command === "prev") {
         await handleHistory("prev");
+    }
+    else if(command === "links"){
+        showLink();
+    }
+    else if(command === "forms"){
+        showForms();
+    }
+    else if(command.startsWith("submit")){
+        const index = parseInt(command.split(' ')[1]);
+        await submitForm(command,index);
     }
     else {
         createTerminalOutput(`<span style="color: red;">Command not found: ${command}</span>`);
@@ -127,6 +148,37 @@ async function handleHistory(c){
     return Promise.resolve(true);
 }
 
+function showLink(){
+    const links = getCurrentLinks();
+    if(links.length > 0){
+        let linkList = "<p>Link : </p><span>Use command open [link number] </span><div class='row'>";
+        links.forEach((link, index) => {
+            linkList += `<div class="column">${index+1} - ${link['text']}</div>`;
+        });
+        linkList += "</div>";
+        createTerminalOutput(linkList);
+    }
+
+}
+
+function showForms() {
+    const forms = getCurrentForms();
+    if(forms.length > 0){
+        let formList = "<p>Form : </p><span>Use command submit [form number] [--input=inputName1=inputValue1&inputName2=inputValue2] </span><table class='table'><thead><tr><th style='width:10px;'>No</th><th>Method</th><th>Action</th><th>Input</th></tr></thead><tbody>";
+        forms.forEach((form, index) => {
+            let inputList = "<ul>";
+            form['inputs'].forEach((input, index) => {
+                inputList += `<li>${input['name']} | ${input['type']} | ${input['required']?"required":"nullable"} | ${input['value']}</li>`;
+            });
+            inputList += "</ul>";
+            formList += `<tr><td>${index+1}</td><td>${form['method']}</td><td>${form['action']}</td><td>${inputList}</td></tr>`;
+        });
+        formList += "</tbody></table>";
+        createTerminalOutput(formList);
+    }
+}
+
+
 function getArgs(command) {
     const l = command.split(' ');
     //get args start with --
@@ -150,8 +202,107 @@ function getCurrentLinks(){
     }
 }
 
+function getCurrentForms(){
+    const el = document.getElementById('forms');
+    if(el){
+        const raw = el.innerHTML;
+        return JSON.parse(raw);
+    } else {
+        return [];
+    }
+
+}
+
+async function submitForm(command,index){
+    const forms = getCurrentForms();
+    if (forms.length === 0){
+        createTerminalOutput(`<span style="color: red;">No forms available</span>`);
+        return;
+    }
+    if (index < 1 || index > forms.length){
+        createTerminalOutput(`<span style="color: red;">Invalid form index: ${index}</span>`);
+        return;
+    }
+    const form = forms[index - 1];
+    const method = form['method'];
+    const action = form['action'];
+    const inputs = form['inputs'];
+    let data = "method=" + method + "&action=" + action + "&";
+    const args = getArgs(command);
+    let formInput = [];
+    if(args.length > 0){
+        const textArgs = args[0].replace('--input=','');
+        formInput = textArgs.split('&').map((v) => {
+            const l = v.split('=');
+            return {
+                name: l[0],
+                value: l[1]
+            }
+        })
+        data += textArgs;
+    }
+
+    inputs.forEach((input, index) => {
+        if(input['required']){
+            const inputName = input['name'];
+            const inputIndex = formInput.findIndex((v) => v.name === inputName);
+            let inputValue = "";
+            if(inputIndex === -1){
+                inputValue = input['value'];
+            }
+            data += `${inputName}=${inputValue}&`;
+        }
+    });
+
+    const target = cleanUrl(action);
+    const response = await fetch(`/submit-form?target=${target}`, {
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        method : "POST",
+        body: data
+    });
+    const jsonData = await response.json();
+    if(response.status === 200) {
+        let text = jsonData.text;
+        //replace /n with <br>
+        text = text.replace(/\n/g, "<br>");
+        let output = `
+        <center>
+            <pre>${ jsonData.titleArt }</pre>
+        </center>
+        <div class="textbox">${text}</div>`;
+        let linkList = "";
+        if(jsonData.links.length > 0){
+            linkList = "<p>Link : </p><span>Use command open [link number] </span><div class='row'>";
+            const elLinks = document.getElementById('links');
+            elLinks.innerHTML = JSON.stringify(jsonData.links);
+            const elForms = document.getElementById('forms');
+            elForms.innerHTML = JSON.stringify(jsonData.forms);
+            host = jsonData.host;
+            document.querySelector('#prompt span').innerHTML = host;
+
+            jsonData.links.forEach((link, index) => {
+                linkList += `<div class="column">${index+1} - ${link['text']}</div>`;
+            });
+            linkList += "</div>";
+        }
+        output += linkList;
+        createTerminalOutput(output);
+        history.push(jsonData.url);
+        currentIndexHistory = history.length - 1;
+        return Promise.resolve(true);
+    } else {
+        createTerminalOutput(`<span style="color: red;">Failed to open link: ${data.error}</span>`);
+    }
+    return Promise.resolve(false);
+
+}
+
 function cleanUrl(url){
-    //if link start with ./ or /
+    if(url == null){
+        url = history[currentIndexHistory];
+    }
     if((url.startsWith('./') || url.startsWith('/')) && !url.startsWith('//')) {
         url = `http://${host}${url.replace("./","/")}`;
     }
@@ -191,6 +342,8 @@ async function openLink(url) {
                 linkList = "<p>Link : </p><span>Use command open [link number] </span><div class='row'>";
                 const elLinks = document.getElementById('links');
                 elLinks.innerHTML = JSON.stringify(data.links);
+                const elForms = document.getElementById('forms');
+                elForms.innerHTML = JSON.stringify(data.forms);
                 host = data.host;
                 document.querySelector('#prompt span').innerHTML = host;
 
@@ -199,7 +352,10 @@ async function openLink(url) {
                 });
                 linkList += "</div>";
             }
-            output += linkList;
+            if(!settings.hideLinks){
+                output += linkList;
+            }
+            
             createTerminalOutput(output);
             return Promise.resolve(true);
         } else {
