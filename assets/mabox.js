@@ -48,6 +48,10 @@ async function processCommand(input) {
         if(!url) {
             createTerminalOutput(`<span style="color: red;">Invalid url: ${url}</span>`);
         } else {
+            const args = getArgs(command);
+            if(args.includes("--hide-links")){
+                settings.hideLinks = true;
+            }
             url = cleanUrl(url);
             await openLink(url).then((v) => {
                 if(v){
@@ -55,6 +59,7 @@ async function processCommand(input) {
                     currentIndexHistory = history.length - 1;
                 }
             });
+            settings.hideLinks = false;
         }
     } else if(command.startsWith("open")) {
         const links = getCurrentLinks();
