@@ -1,9 +1,9 @@
 ## Mabox CLI
-convert web menjadi teks cli
+convert web to stupid CLI
 
-### Fitur
-- navigasi halaman dengan command line
-- mengambil teks dari halaman web
+### Features
+- extract and convert website content to text
+- navigate webpage trhough links
 
 ### Command Table
 | Command | Deskripsi |
@@ -18,10 +18,10 @@ convert web menjadi teks cli
 | forms | show available forms in current website |
 | submit | submit form, submit [form number] --input=input1=value1&input2=value2 |
 
-### Kekurangan
-- hanya support navigasi dengan GET request
-- tidak support interaksi javascript
+### Cons
+- only support navigate with links / GET request
+- not support javascript interaction & SPA/PWA website
 
-### Menjalankan Aplikasi
+### Run Locally
 - `pip install -r requirements.txt`
 - `python main.py`

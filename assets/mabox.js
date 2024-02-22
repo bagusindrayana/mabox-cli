@@ -28,6 +28,8 @@ async function processCommand(input) {
     const command = input.trim();
     if(command === "help") {
         createTerminalOutput(`
+            <a href="https://github.com/bagusindrayana/mabox-cli" target="_blank">Github</a>
+            <p>Help</p>
             <span style="color: white;">Available commands:</span>
             <ul>
                 <li>help - show available commands</li>
