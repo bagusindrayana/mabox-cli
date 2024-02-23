@@ -69,7 +69,7 @@ def convertResponseToText(response):
         "host": host,
         "title" : title,
         "titleArt" : titleArt,
-        "text": text.strip().replace("\n\n\n", "").replace("\n \n \n", ""),
+        "text": text.strip().replace("\n\n", ""),
         "links": links,
         "forms": forms
     }
