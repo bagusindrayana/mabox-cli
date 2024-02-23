@@ -2,8 +2,13 @@ let host = document.getElementById('host').innerHTML;
 const terminalDiv = document.getElementById('terminal');
 const inputLineDiv = document.getElementById('input-line');
 
+const inputField = document.getElementById('input');
+
 let history = [];
 let currentIndexHistory = 0;
+let historyCommand = [];
+let currentIndexHistoryCommand = 0;
+
 let settings = {
     "hideLinks": false
 }
@@ -22,9 +27,13 @@ function createTerminalOutput(text) {
     terminalDiv.appendChild(outputDiv);
 }
 
+const delay = ms => new Promise(res => setTimeout(res, ms));
+
 async function processCommand(input) {
     const command = input.trim();
     if(command === "help") {
+         //wait 500ms
+         await delay(500);
         createTerminalOutput(`
             <a href="https://github.com/bagusindrayana/mabox-cli" target="_blank">Github</a>
             <p>Help</p>
@@ -41,6 +50,7 @@ async function processCommand(input) {
                 <li>submit - submit form, submit [form number] --input=input1=value1&input2=value2</li>
             </ul>
         `);
+       
     } else if(command.startsWith("convert")) {
         let url = command.split(' ')[1];
         if(!url) {
@@ -93,10 +103,10 @@ async function processCommand(input) {
         await handleHistory("prev");
     }
     else if(command === "links"){
-        showLink();
+        await showLink();
     }
     else if(command === "forms"){
-        showForms();
+        await showForms();
     }
     else if(command.startsWith("submit")){
         const index = parseInt(command.split(' ')[1]);
@@ -109,6 +119,11 @@ async function processCommand(input) {
     return Promise.resolve(true);
 
 }
+
+
+inputField.focus();
+inputField.addEventListener('keydown', handleInput);
+
 
 function handleInput(event) {
     if (event.key === 'Enter') {
@@ -126,10 +141,27 @@ function handleInput(event) {
             //focus input
             document.body.scrollTop = document.body.scrollHeight;
             event.target.focus();
-            
+            historyCommand.push(input);
+            currentIndexHistoryCommand = historyCommand.length;
             
         });
         
+    }
+
+    if (event.key === 'ArrowUp') {
+        if(historyCommand.length > 0){
+            if(currentIndexHistoryCommand > 0){
+                currentIndexHistoryCommand--;
+            }
+            inputField.value = historyCommand[currentIndexHistoryCommand];
+        }
+    } else if (event.key === 'ArrowDown') {
+        if(historyCommand.length > 0){
+            if(currentIndexHistoryCommand < historyCommand.length - 1){
+                currentIndexHistoryCommand++;
+            }
+            inputField.value = historyCommand[currentIndexHistoryCommand];
+        }
     }
 }
 
@@ -153,8 +185,14 @@ async function handleHistory(c){
     return Promise.resolve(true);
 }
 
-function showLink(){
+async function showLink(){
     const links = getCurrentLinks();
+
+    //wait 500ms
+    await delay(500);
+
+
+
     if(links.length > 0){
         let linkList = "<p>Link : </p><span>Use command open [link number] </span><div class='row'>";
         links.forEach((link, index) => {
@@ -163,11 +201,14 @@ function showLink(){
         linkList += "</div>";
         createTerminalOutput(linkList);
     }
+    return Promise.resolve(true);
 
 }
 
-function showForms() {
+async function showForms() {
     const forms = getCurrentForms();
+    //wait 500ms
+    await delay(500);
     if(forms.length > 0){
         let formList = "<p>Form : </p><span>Use command submit [form number] [--input=inputName1=inputValue1&inputName2=inputValue2] </span><table class='table'><thead><tr><th style='width:10px;'>No</th><th>Method</th><th>Action</th><th>Input</th></tr></thead><tbody>";
         forms.forEach((form, index) => {
@@ -181,6 +222,7 @@ function showForms() {
         formList += "</tbody></table>";
         createTerminalOutput(formList);
     }
+    return Promise.resolve(true);
 }
 
 
@@ -193,9 +235,7 @@ function getArgs(command) {
 
 
 
-const inputField = document.getElementById('input');
-inputField.focus();
-inputField.addEventListener('keydown', handleInput);
+
 
 function getCurrentLinks(){
     const el = document.getElementById('links');

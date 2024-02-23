@@ -63,13 +63,14 @@ def convertResponseToText(response):
         host = m.group(1).replace("www.", "")
     else:
         host = url
+    text = text.replace("\n\n", "")
     text = markdownify.markdownify(text, heading_style="ATX")
     return {
         "url": url,
         "host": host,
         "title" : title,
         "titleArt" : titleArt,
-        "text": text.strip().replace("\n\n", ""),
+        "text": text,
         "links": links,
         "forms": forms
     }
