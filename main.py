@@ -14,14 +14,14 @@ CORS(app)
 def convertResponseToText(response):
     soup = BeautifulSoup(response.text, 'html.parser')
     # get title
-    title = soup.title.string
+    title = soup.title.string.strip()
     links = []
     # get text from website, but keep newline
     for a in soup.find_all('a'):
         if a.get("href") != None and a.get_text().strip() != "" and a.get("href").strip() != "" and not a.get("href").startswith("#"):
             links.append({
                 "href": a.get("href"),
-                "text": a.get_text()
+                "text": a.get_text().strip()
             })
         # a.replace_with("")
     
@@ -43,14 +43,16 @@ def convertResponseToText(response):
         form.replace_with(" ")
     
     # remove a and nav tag
-    for a in soup.find_all('nav'):
-        a.replace_with("")
-    for a in soup.find_all('header'):
-        a.replace_with("")
-    for a in soup.find_all('footer'):
-        a.replace_with("")
-    # for a in soup.find_all('a'):
-    #     a.replace_with("")
+    for nav in soup.find_all('nav'):
+        nav.decompose()
+    for header in soup.find_all('header'):
+        header.decompose()
+    for footer in soup.find_all('footer'):
+        footer.decompose()
+    for a in soup.find_all('a'):
+        # if child not div
+        if a.find("div") == None:
+            a.decompose()
 
     text = soup.get_text()
     # # replace newline with <br> tag
@@ -63,8 +65,9 @@ def convertResponseToText(response):
         host = m.group(1).replace("www.", "")
     else:
         host = url
-    text = text.replace("\n\n", "")
+    
     text = markdownify.markdownify(text, heading_style="ATX")
+    text = text.replace("\n\n\n", "")
     return {
         "url": url,
         "host": host,
