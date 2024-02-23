@@ -20,8 +20,6 @@ function createTerminalOutput(text) {
     const outputDiv = document.createElement('div');
     outputDiv.innerHTML = text; // Use innerHTML to render HTML tags in output
     terminalDiv.appendChild(outputDiv);
-    
-    
 }
 
 async function processCommand(input) {
@@ -115,7 +113,7 @@ async function processCommand(input) {
 function handleInput(event) {
     if (event.key === 'Enter') {
         const input = event.target.value;
-        createTerminalOutput(`<span id="prompt">mabox_cli@${host}:</span> ${input}`);
+        createTerminalOutput(`<span class="green-text">mabox_cli@${host}:</span> ${input}`);
         //hide input
         inputLineDiv.style.display = 'none';
 
@@ -201,7 +199,7 @@ inputField.addEventListener('keydown', handleInput);
 
 function getCurrentLinks(){
     const el = document.getElementById('links');
-    if(el){
+    if(el && el.innerHTML !== ""){
         const raw = el.innerHTML;
         return JSON.parse(raw);
     } else {
@@ -211,7 +209,7 @@ function getCurrentLinks(){
 
 function getCurrentForms(){
     const el = document.getElementById('forms');
-    if(el){
+    if(el && el.innerHTML !== ""){
         const raw = el.innerHTML;
         return JSON.parse(raw);
     } else {

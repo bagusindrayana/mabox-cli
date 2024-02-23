@@ -31,6 +31,10 @@ body {
     margin-right: 5px;
 }
 
+.green-text {
+    color: green;
+}
+
 #input {
     flex: 1;
     background-color: transparent;
